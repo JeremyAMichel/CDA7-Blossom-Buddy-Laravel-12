@@ -23,8 +23,8 @@ Route::prefix('plants')->group(function () {
 });
 
 // User_Plant routes (routes where the user interact with plants)
-// Route::prefix('user/plant')->group(function () {
-//     Route::post('/', [PlantUserController::class, 'addPlantUser'])->name('user.plant.addPlantUser')->middleware('auth:sanctum');
-//     Route::delete('/{id}', [PlantUserController::class, 'deletePlantUser'])->name('user.plant.deletePlantUser')->middleware('auth:sanctum');
-// });
-// Route::get('/user/plants', [PlantUserController::class, 'getPlantsUser'])->name('user.plant.getPlantsUser')->middleware('auth:sanctum');
+Route::prefix('user/plant')->group(function () {
+    Route::post('/', [PlantUserController::class, 'addPlantUser'])->name('user.plant.addPlantUser')->middleware('auth:sanctum');
+    Route::delete('/{id}', [PlantUserController::class, 'deletePlantUser'])->name('user.plant.deletePlantUser')->middleware('auth:sanctum');
+});
+Route::get('/user/plants', [PlantUserController::class, 'getPlantsUser'])->name('user.plant.getPlantsUser')->middleware('auth:sanctum');
