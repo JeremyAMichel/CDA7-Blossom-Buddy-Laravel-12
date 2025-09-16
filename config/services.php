@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'perenual' => [
+        'key' => env('API_PERENUAL_KEY'),
+        'daily_limit' => env('API_PERENUAL_DAILY_LIMIT', 100),
+    ],
+
 ];

@@ -9,11 +9,27 @@ class Plant extends Model
 {
     protected $fillable = [
         'common_name',
-        'watering_general_benchmark'
+        'watering_general_benchmark',
+        'api_id',
+        'watering',
+        'watering_period',
+        'flowers',
+        'fruits',
+        'leaf',
+        'growth_rate',
+        'maintenance'
     ];
 
     protected $casts = [
-        'watering_general_benchmark' => 'array'
+        'watering_general_benchmark' => 'array',
+        'flowers' => 'boolean',
+        'fruits' => 'boolean',
+        'leaf' => 'boolean'
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
     ];
 
     public function users(): BelongsToMany
