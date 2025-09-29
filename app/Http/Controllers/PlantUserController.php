@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\WeatherServiceInterface;
 use App\Models\Plant;
 use App\Models\PlantUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PlantUserController extends Controller
 {
@@ -110,7 +112,7 @@ class PlantUserController extends Controller
      *     )
      * )
      */
-    public function addPlantUser(Request $request): JsonResponse
+    public function addPlantUser(Request $request, WeatherServiceInterface $weatherService): JsonResponse
     {
 
         $validated = $request->validate([
@@ -124,14 +126,43 @@ class PlantUserController extends Controller
         $user = $request->user();
 
         $plant = Plant::where('common_name', 'LIKE', '%' . $validated['plant_name'] . '%')->firstOrFail();
+        if(!$plant) {
+            return response()->json(['message' => 'Plant not found'], 404);
+        }
 
         $city = $validated['city'];
 
+        // Call the weather service
+
         $user->plants()->attach($plant->id, ['city' => $city]);
 
-        return response()->json([
-            'message' => 'Plant added to user successfully',
-        ], 200);
+        // Récupérer les données météo
+        try {
+            // Déterminer le nombre de jours basé sur le watering benchmark de la plante
+            $forecastDays = $weatherService->determineForecastDays($plant->watering_general_benchmark);
+            
+            // Récupérer les prévisions météo
+            $weatherData = $weatherService->getForecast($city, $forecastDays);
+
+            return response()->json([
+                'message' => 'Plant added to user successfully',
+                'weather_info' => [
+                    'city' => $weatherData['city'],
+                    'days' => $weatherData['days'],
+                    'daily_humidity' => $weatherData['daily_humidity'],
+                    'retrieved_at' => $weatherData['retrieved_at']
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error("Erreur lors de la récupération de la météo pour {$city}: " . $e->getMessage());
+            
+            // La plante est déjà ajoutée, mais on informe que les données météo ne sont pas disponibles
+            return response()->json([
+                'message' => 'Plant added to user successfully, but weather data unavailable',
+                'error' => 'Weather data could not be retrieved: ' . $e->getMessage()
+            ], 200);
+        }
     }
 
     /**

@@ -40,4 +40,11 @@ return [
         'daily_limit' => env('API_PERENUAL_DAILY_LIMIT', 100),
     ],
 
+    'weatherapi' => [
+        'key' => env('API_WEATHERAPI_KEY'),
+        'base_url' => 'https://api.weatherapi.com/v1',
+        'cache_duration' => 120, // 2 heures en minutes
+        'max_forecast_days' => 5,
+    ], 
+
 ];
