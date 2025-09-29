@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Contracts\WateringCalculatorServiceInterface;
 use App\Contracts\WeatherServiceInterface;
 use App\Models\Plant;
 use App\Models\PlantUser;
@@ -112,7 +113,7 @@ class PlantUserController extends Controller
      *     )
      * )
      */
-    public function addPlantUser(Request $request, WeatherServiceInterface $weatherService): JsonResponse
+    public function addPlantUser(Request $request, WeatherServiceInterface $weatherService, WateringCalculatorServiceInterface $wateringCalculatorService): JsonResponse
     {
 
         $validated = $request->validate([
@@ -144,6 +145,12 @@ class PlantUserController extends Controller
             // Récupérer les prévisions météo
             $weatherData = $weatherService->getForecast($city, $forecastDays);
 
+            // Calculer le prochain arrosage
+            $wateringCalculation = $wateringCalculatorService->calculateNextWatering(
+                $plant->watering_general_benchmark,
+                $weatherData['daily_humidity']
+            );
+
             return response()->json([
                 'message' => 'Plant added to user successfully',
                 'weather_info' => [
@@ -151,16 +158,17 @@ class PlantUserController extends Controller
                     'days' => $weatherData['days'],
                     'daily_humidity' => $weatherData['daily_humidity'],
                     'retrieved_at' => $weatherData['retrieved_at']
-                ]
+                ],
+                'watering_calculation' => $wateringCalculation
             ], 200);
 
         } catch (\Exception $e) {
-            Log::error("Erreur lors de la récupération de la météo pour {$city}: " . $e->getMessage());
+            Log::error("Erreur lors de la récupération de la météo ou du calcul d'arrosage pour {$city}: " . $e->getMessage());
             
-            // La plante est déjà ajoutée, mais on informe que les données météo ne sont pas disponibles
+            // La plante est déjà ajoutée, mais on informe que les calculs ne sont pas disponibles
             return response()->json([
-                'message' => 'Plant added to user successfully, but weather data unavailable',
-                'error' => 'Weather data could not be retrieved: ' . $e->getMessage()
+                'message' => 'Plant added to user successfully, but weather/watering calculation unavailable',
+                'error' => 'Weather/watering calculation could not be completed: ' . $e->getMessage()
             ], 200);
         }
     }
