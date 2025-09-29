@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Contracts\PlantServiceInterface;
 use App\Services\PlantService;
 use Illuminate\Console\Command;
 
@@ -14,7 +15,7 @@ class FetchPlants extends Command
                             
     protected $description = 'Récupérer les plantes depuis l\'API Perenual avec gestion de progression automatique';
 
-    public function handle(PlantService $plantService): int
+    public function handle(PlantServiceInterface $plantService): int
     {
         if ($this->option('reset')) {
             $plantService->resetProgress();

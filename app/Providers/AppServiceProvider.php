@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\PlantServiceInterface;
+use App\Services\PlantService;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 
@@ -12,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(PlantServiceInterface::class, PlantService::class);
     }
 
     /**

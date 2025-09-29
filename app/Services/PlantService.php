@@ -2,13 +2,14 @@
 
 namespace App\Services;
 
+use App\Contracts\PlantServiceInterface;
 use App\Models\ApiSyncTracking;
 use App\Models\Plant;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
-class PlantService
+class PlantService implements PlantServiceInterface
 {
     private string $apiKey;
     private string $apiUrl;
